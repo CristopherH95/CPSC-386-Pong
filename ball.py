@@ -42,10 +42,10 @@ class Ball(pygame.sprite.Sprite):
         """When hitting a vertical surface, calculate the new direction
         and play the paddle hit sound (if not in game over state)"""
         self.direction = (360 - self.direction) % 360
-        self.fix_collisions()
+        # self.fix_collisions()
         if not self.game_over:
             self.paddle_hit.play()  # play the sound for bouncing off paddle
-        print('paddle hit direction: ' + str(self.direction))
+        # print('paddle hit direction: ' + str(self.direction))
 
     def fix_collisions(self):
         """Move the ball on the x-axis to help avoid sprite overlap, or the ball going off screen on game over"""
@@ -69,12 +69,3 @@ class Ball(pygame.sprite.Sprite):
         self.y -= self.speed * math.cos(direction_angle)
         self.rect.x = self.x
         self.rect.y = self.y
-
-        if self.rect.y + self.height >= self.config.screen_height or self.rect.y - self.height <= 0:
-            self.direction = (180 - self.direction) % 360
-            if not self.game_over:
-                self.border_hit.play()
-            print('border hit direction: ' + str(self.direction))
-
-
-

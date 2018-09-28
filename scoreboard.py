@@ -4,7 +4,7 @@ from pygame import mixer
 
 class Scoreboard:
     """Records and displays scoring information"""
-    def __init__(self, config, screen, player):
+    def __init__(self, config, screen, player=True):
         # display info and config
         self.screen = screen
         self.screen_rect = screen.get_rect()
@@ -41,15 +41,18 @@ class Scoreboard:
 
     def place_board(self):
         """Place the scoreboard based on which player the board represents"""
-        if self.player.player_num == 1:
-            self.image_rect.x = int(self.config.screen_width * 0.25)
-        else:
+        if self.player:
             self.image_rect.x = int(self.config.screen_width * 0.75)
+        else:
+            self.image_rect.x = int(self.config.screen_width * 0.25)
         self.image_rect.top = int(self.config.screen_height * 0.05)
 
     def prep_winner(self):
         """Render a winner announcement instead of a score when a game is over"""
-        message = 'Player ' + str(self.player.player_num) + ' wins!'
+        if self.player:
+            message = 'You win!'
+        else:
+            message = 'Computer wins!'
         self.image = self.font.render(message, True, self.text_color, self.config.bg_color)
         self.image_rect = self.image.get_rect()
         self.place_board()

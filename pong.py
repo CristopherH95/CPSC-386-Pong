@@ -2,7 +2,8 @@ import pygame
 import game_functions as game
 from ball import Ball
 from court_divider import Divider
-from player import Player
+from game_stats import GameStats
+from paddle import Player, AiPaddleH, AiPaddleV
 from scoreboard import Scoreboard
 from config import Config
 
@@ -16,32 +17,42 @@ def run_game():
     )
     pygame.display.set_caption('Pong')
     # setup players
-    player1 = Player(config, screen, player_num=1)
-    player2 = Player(config, screen, player_num=2)
-    players = pygame.sprite.Group()
-    players.add((player1, player2))
+    ai_player_v = AiPaddleV(config, screen)
+    ai_player_h1 = AiPaddleH(config, screen, top=True)
+    ai_player_h2 = AiPaddleH(config, screen, top=False)
+    player_v = Player(config, screen, vertical=True)
+    player_h1 = Player(config, screen, vertical=False, top=True)
+    player_h2 = Player(config, screen, vertical=False, top=False)
+    paddles = pygame.sprite.Group()
+    paddles.add((ai_player_v, ai_player_h1, ai_player_h2,
+                 player_v, player_h1, player_h2))
+    ai_player = pygame.sprite.Group()
+    ai_player.add((ai_player_v, ai_player_h1, ai_player_h2))
+    player = pygame.sprite.Group()
+    player.add((player_v, player_h1, player_h2))
     # setup scoreboards
-    scoreboard_1 = Scoreboard(config, screen, player1)
-    scoreboard_2 = Scoreboard(config, screen, player2)
+    gs = GameStats(config)
+    scoreboard_1 = Scoreboard(config, screen, player=False)
+    scoreboard_2 = Scoreboard(config, screen, player=True)
     # setup center divider
     divider = Divider(config, screen)
     # setup ball
     ball = Ball(config, screen)
-    game_over = False
+    gs.game_active = True
     winner_time = None
 
     while True:
         clock.tick(60)  # 60 fps limit
-        game_over, winner = game.check_scores(scoreboard_1, scoreboard_2)
-        if game_over:   # if game over, display winner for 5 seconds
+        gs.game_active, winner = game.check_scores(gs)
+        if not gs.game_active:   # if game over, display winner for 5 seconds
             if winner_time is None:
                 winner_time = pygame.time.get_ticks()
             if abs(winner_time - pygame.time.get_ticks()) > 5000:
-                game_over, winner_time = False, None
-                game.reset_game(ball, scoreboard_1, scoreboard_2, players)
-        game.check_events(player1, player2)
+                gs.game_active, winner_time = True, None
+                game.reset_game(ball, scoreboard_1, scoreboard_2, paddles, gs)
+        game.check_events(player_v, player_h1, player_h2)
         game.update_screen(config, screen, scoreboard_1, scoreboard_2,
-                           players, ball, divider, game_over, winner or None)
+                           paddles, ball, ai_player, divider, gs, winner or None)
 
 
 if __name__ == '__main__':
