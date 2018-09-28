@@ -3,6 +3,8 @@ written by Cristopher Hernandez
 
 First player to score over 10 points is the winner
 
+To run the game: execute pong.py (e.g. run 'python pong.py' on the command line)
+
 Player 1 Controls:
 
 'W' -> move up
