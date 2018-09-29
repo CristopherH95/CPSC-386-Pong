@@ -3,7 +3,7 @@ import game_functions as game
 from ball import Ball
 from court_divider import Divider
 from game_stats import GameStats
-from scoreboard import Scoreboard
+from scoreboard import Scoreboard, GoalBoard
 from config import Config
 
 
@@ -22,6 +22,8 @@ def run_game():
     gs = GameStats(config)
     scoreboard_1 = Scoreboard(config, screen, player=False)
     scoreboard_2 = Scoreboard(config, screen, player=True)
+    goal_board = GoalBoard(config, screen)
+    goal_board.prep_board()
     # setup center divider
     divider = Divider(config, screen)
     # setup ball
@@ -42,7 +44,8 @@ def run_game():
                 continue
         game.check_events(player_data['player_v'], player_data['player_h1'], player_data['player_h2'])
         game.update_screen(config, screen, scoreboard_1, scoreboard_2,
-                           player_data['paddles'], ball, player_data['ai_player'], divider, gs, winner or None)
+                           player_data['paddles'], ball, player_data['ai_player'], divider, gs, goal_board,
+                           winner or None)
 
 
 if __name__ == '__main__':

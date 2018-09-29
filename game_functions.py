@@ -75,14 +75,14 @@ def check_ball_collisions(paddles, ball, config, scoreboard_1, scoreboard_2, gam
                  and ball.rect.x < (config.screen_width // 2)):
             game_stats.score_for_player()
             scoreboard_2.score_point()
-            scoreboard_2.prep_score()
+            scoreboard_2.prep_board()
             ball.begin_serve()
         elif ball.rect.x > config.screen_width or \
                 ((ball.rect.y < 0 or ball.rect.y > config.screen_height)
                  and ball.rect.x > (config.screen_width // 2)):
             game_stats.score_for_ai()
             scoreboard_1.score_point()
-            scoreboard_1.prep_score()
+            scoreboard_1.prep_board()
             ball.begin_serve()
     else:
         if (ball.rect.x < 0 or ball.rect.x > config.screen_width) or \
@@ -116,7 +116,7 @@ def check_winner_display(game_stats, ball, scoreboard_1, scoreboard_2, paddles):
 def show_winner(scoreboard):
     """Prepare and blit the winner's scoreboard"""
     scoreboard.prep_winner()
-    scoreboard.show_score()
+    scoreboard.show()
 
 
 def reset_game(ball, scoreboard_1, scoreboard_2, players, game_stats):
@@ -126,8 +126,8 @@ def reset_game(ball, scoreboard_1, scoreboard_2, players, game_stats):
     game_stats.reset_scores()
     scoreboard_1.reset_score()
     scoreboard_2.reset_score()
-    scoreboard_1.prep_score()
-    scoreboard_2.prep_score()
+    scoreboard_1.prep_board()
+    scoreboard_2.prep_board()
     for paddle in players.sprites():
         paddle.reset_position()
 
@@ -156,15 +156,15 @@ def startup_screen(config, game_stats, screen):
 
 
 def update_screen(config, screen, scoreboard_1, scoreboard_2, paddles,
-                  ball, ai_player, divider, game_stats, winner=None):
+                  ball, ai_player, divider, game_stats, goal_board, winner=None):
     """Update all graphics, update ball based on collisions."""
     ball.game_over = not game_stats.game_active
     check_ball_collisions(paddles, ball, config, scoreboard_1, scoreboard_2, game_stats)
     screen.fill(config.bg_color)
     divider.draw_divider()
     if game_stats.game_active:
-        scoreboard_1.show_score()
-        scoreboard_2.show_score()
+        scoreboard_1.show()
+        scoreboard_2.show()
         for paddle in ai_player.sprites():
             paddle.track_ball(ball)
         paddles.update()
@@ -174,4 +174,5 @@ def update_screen(config, screen, scoreboard_1, scoreboard_2, paddles,
         show_winner(scoreboard_1 if winner == 'ai' else scoreboard_2)
     ball.update()
     ball.blitme()
+    goal_board.show()
     pygame.display.flip()
