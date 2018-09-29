@@ -18,8 +18,8 @@ class Ball(pygame.sprite.Sprite):
         self.image.fill(config.ball_color)
         self.rect = self.image.get_rect()
         # ball sounds
-        self.paddle_hit = pygame.mixer.Sound('sounds/pong-paddle.wav')
-        self.border_hit = pygame.mixer.Sound('sounds/pong-border.wav')
+        self.paddle_vertical_hit = pygame.mixer.Sound('sounds/pong-paddle-vertical.wav')
+        self.paddle_horizontal_hit = pygame.mixer.Sound('sounds/pong-paddle-horizontal.wav')
         # ball 'physics'
         self.speed = 0
         self.speed_increase = 1.1
@@ -27,9 +27,21 @@ class Ball(pygame.sprite.Sprite):
         self.y = float(0)
         self.velocity_x = 0
         self.velocity_y = 0
-        self.restart()
+        self.restart_check = None
+        self.restart_time = 1000
+        self.reset()
 
-    def restart(self):
+    def begin_serve(self):
+        """Set restart check to current time measurement to begin waiting for restart"""
+        self.restart_check = pygame.time.get_ticks()
+        self.x = self.config.screen_width / 2
+        self.y = self.config.screen_height / 2
+        self.rect.x = self.x
+        self.rect.y = self.y
+        self.velocity_x = 0
+        self.velocity_y = 0
+
+    def reset(self):
         """Reset the ball's position and choose a side to 'serve' to"""
         self.x = self.config.screen_width / 2
         self.y = self.config.screen_height / 2
@@ -60,10 +72,12 @@ class Ball(pygame.sprite.Sprite):
                 self.velocity_y = -self.velocity_y
             else:
                 self.velocity_x = -self.velocity_x
-        print(self.velocity_y)
         self.fix_collisions(paddle)
         if not self.game_over:
-            self.paddle_hit.play()  # play the sound for bouncing off paddle
+            if paddle.is_horizontal():
+                self.paddle_horizontal_hit.play()
+            else:
+                self.paddle_vertical_hit.play()  # play the sound for bouncing off paddle
 
     def fix_collisions(self, paddle=None):
         """Move the ball to help avoid sprite overlap, or the ball going completely off screen on game over"""
@@ -90,7 +104,12 @@ class Ball(pygame.sprite.Sprite):
         self.screen.blit(self.image, self.rect)
 
     def update(self):
-        self.x += self.velocity_x
-        self.y += self.velocity_y
-        self.rect.x = self.x
-        self.rect.y = self.y
+        if not self.restart_check:
+            self.x += self.velocity_x
+            self.y += self.velocity_y
+            self.rect.x = self.x
+            self.rect.y = self.y
+        else:
+            if abs(self.restart_check - pygame.time.get_ticks()) > self.restart_time:
+                self.restart_check = None
+                self.reset()

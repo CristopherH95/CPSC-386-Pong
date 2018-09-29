@@ -66,7 +66,7 @@ class Subtitle:
     def __init__(self, bg_color, screen):
         self.bg_color = bg_color
         self.screen = screen
-        self.text = 'No Walls Edition'
+        self.text = 'No Walls'
         self.text_color = (0, 255, 0)
         self.font = SysFont(None, 36)
         self.image = None

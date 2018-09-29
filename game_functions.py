@@ -76,14 +76,14 @@ def check_ball_collisions(paddles, ball, config, scoreboard_1, scoreboard_2, gam
             game_stats.score_for_player()
             scoreboard_2.score_point()
             scoreboard_2.prep_score()
-            ball.restart()
+            ball.begin_serve()
         elif ball.rect.x > config.screen_width or \
                 ((ball.rect.y < 0 or ball.rect.y > config.screen_height)
                  and ball.rect.x > (config.screen_width // 2)):
             game_stats.score_for_ai()
             scoreboard_1.score_point()
             scoreboard_1.prep_score()
-            ball.restart()
+            ball.begin_serve()
     else:
         if (ball.rect.x < 0 or ball.rect.x > config.screen_width) or \
                 (ball.rect.y < 0 or ball.rect.y > config.screen_height):
@@ -106,7 +106,7 @@ def check_winner_display(game_stats, ball, scoreboard_1, scoreboard_2, paddles):
     done = False
     if game_stats.winner_time is None:
         game_stats.winner_time = pygame.time.get_ticks()
-    if abs(game_stats.winner_time - pygame.time.get_ticks()) > 5000:
+    if abs(game_stats.winner_time - pygame.time.get_ticks()) > 6000:  # winner should be displayed for 6 seconds
         done = True
         game_stats.winner_time = None
         reset_game(ball, scoreboard_1, scoreboard_2, paddles, game_stats)
@@ -122,7 +122,7 @@ def show_winner(scoreboard):
 def reset_game(ball, scoreboard_1, scoreboard_2, players, game_stats):
     """Reset the game state so that all scores are 0, paddles are back in default position,
      and the ball is in the default position."""
-    ball.restart()
+    ball.reset()
     game_stats.reset_scores()
     scoreboard_1.reset_score()
     scoreboard_2.reset_score()
