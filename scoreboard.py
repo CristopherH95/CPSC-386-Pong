@@ -23,6 +23,9 @@ class Scoreboard:
         self.player = player
         self.score = 0
 
+        # Initialize
+        self.prep_score()
+
     def reset_score(self):
         """Reset the current score to 0"""
         self.score = 0

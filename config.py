@@ -14,7 +14,7 @@ class Config:
         self.paddle_height = 75
         self.paddle_width = 15
         self.paddle_color = (255, 255, 255)
-        self.ai_speed = 10
+        self.ai_speed = 3
 
         # ball
         self.ball_height = 10
@@ -32,4 +32,4 @@ class Config:
 
         # Scoring
         self.score_points = 1
-        self.max_score = 10
+        self.max_score = 7

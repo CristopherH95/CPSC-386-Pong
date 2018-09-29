@@ -9,14 +9,15 @@ from config import Config
 
 
 def run_game():
+    # initial game setup
     pygame.init()
     config = Config()
     clock = pygame.time.Clock()
     screen = pygame.display.set_mode(
         (config.screen_width, config.screen_height)
     )
-    pygame.display.set_caption('Pong')
-    # setup players
+    pygame.display.set_caption('Pong - No Walls')
+    # setup players/AI
     ai_player_v = AiPaddleV(config, screen)
     ai_player_h1 = AiPaddleH(config, screen, top=True)
     ai_player_h2 = AiPaddleH(config, screen, top=False)
@@ -38,18 +39,18 @@ def run_game():
     divider = Divider(config, screen)
     # setup ball
     ball = Ball(config, screen)
-    gs.game_active = True
-    winner_time = None
+    winner = None
 
     while True:
         clock.tick(60)  # 60 fps limit
-        gs.game_active, winner = game.check_scores(gs)
-        if not gs.game_active:   # if game over, display winner for 5 seconds
-            if winner_time is None:
-                winner_time = pygame.time.get_ticks()
-            if abs(winner_time - pygame.time.get_ticks()) > 5000:
-                gs.game_active, winner_time = True, None
-                game.reset_game(ball, scoreboard_1, scoreboard_2, paddles, gs)
+        if not gs.game_active and not winner:
+            quit_game = game.startup_screen(config, gs, screen)
+            if quit_game:
+                pygame.quit()
+                break
+        gs.game_active, winner = game.check_scores(gs, config)
+        if not gs.game_active and winner:   # if game over, display winner for 5 seconds
+            game.check_winner_display(gs, ball, scoreboard_1, scoreboard_2, paddles)
         game.check_events(player_v, player_h1, player_h2)
         game.update_screen(config, screen, scoreboard_1, scoreboard_2,
                            paddles, ball, ai_player, divider, gs, winner or None)

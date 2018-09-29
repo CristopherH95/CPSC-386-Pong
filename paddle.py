@@ -13,6 +13,15 @@ class Paddle(Sprite):
         self.image.fill(config.paddle_color)
         self.rect = self.image.get_rect()
 
+    def get_middle(self):
+        if self.is_horizontal():
+            return self.rect.width / 2
+        else:
+            return self.rect.height / 2
+
+    def is_horizontal(self):
+        return self.rect.width > self.rect.height
+
     def reset_position(self):
         raise NotImplemented('Paddle subclasses must implement reset_position method')
 
@@ -35,9 +44,9 @@ class AiPaddleH(Paddle):
     def reset_position(self):
         self.rect.x = (self.config.screen_width // 2) // 2
         if self.top:
-            self.rect.y = int(self.config.screen_height * 0.05)
+            self.rect.y = int(self.config.screen_height * 0.005)
         else:
-            self.rect.y = int(self.config.screen_height * 0.95)
+            self.rect.y = int(self.config.screen_height * 0.975)
 
     def track_ball(self, ball):
         if self.rect.x > ball.rect.x and self.rect.left > 0:
@@ -55,14 +64,14 @@ class AiPaddleV(Paddle):
         self.reset_position()
 
     def reset_position(self):
-        self.rect.x = int(self.config.screen_width * 0.05)
+        self.rect.x = int(self.config.screen_width * 0.005)
         self.rect.y = self.config.screen_height // 2
 
     def track_ball(self, ball):
-        if self.rect.y > ball.rect.y and self.rect.top > 0:
-            self.rect.y -= self.speed
-        if self.rect.y < ball.rect.y and self.rect.bottom < self.config.screen_height:
-            self.rect.y += self.speed
+        if self.rect.centery > ball.rect.y and self.rect.top > 0:
+            self.rect.centery -= self.speed
+        if self.rect.centery < ball.rect.y and self.rect.bottom < self.config.screen_height:
+            self.rect.centery += self.speed
 
 
 class Player(Paddle):
@@ -84,14 +93,14 @@ class Player(Paddle):
     def reset_position(self):
         """Reset paddle position based on screen dimensions"""
         if self.vertical:
-            self.rect.x = int(self.config.screen_width * 0.95)
+            self.rect.x = int(self.config.screen_width * 0.975)
             self.rect.y = self.config.screen_height // 2
         else:
             self.rect.x = int(self.config.screen_width * 0.75)
             if self.top:
-                self.rect.y = int(self.config.screen_height * 0.05)
+                self.rect.y = int(self.config.screen_height * 0.005)
             else:
-                self.rect.y = int(self.config.screen_height * 0.95)
+                self.rect.y = int(self.config.screen_height * 0.975)
 
     def update(self):
         """Update paddle's position based on moving state"""

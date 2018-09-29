@@ -1,5 +1,4 @@
 import pygame
-import math
 from random import randrange
 
 
@@ -22,9 +21,11 @@ class Ball(pygame.sprite.Sprite):
         self.border_hit = pygame.mixer.Sound('sounds/pong-border.wav')
         # ball 'physics'
         self.speed = 0
+        self.speed_increase = 1.1
         self.x = float(0)
         self.y = float(0)
-        self.direction = 0  # 360 degree direction
+        self.velocity_x = 0
+        self.velocity_y = 0
         self.restart()
 
     def restart(self):
@@ -33,39 +34,55 @@ class Ball(pygame.sprite.Sprite):
         self.y = self.config.screen_height / 2
         self.speed = 8.0
         if randrange(2) == 0:
-            self.direction = randrange(-120, -60)
+            self.velocity_x = -self.speed
+            self.velocity_y = randrange(-self.speed, self.speed)
         else:
-            self.direction = randrange(60, 120)
-        print('random initial direction: ' + str(self.direction))
+            self.velocity_x = self.speed
+            self.velocity_y = randrange(-self.speed, self.speed)
 
-    def bounce(self):
-        """When hitting a vertical surface, calculate the new direction
+    def bounce(self, paddle=None):
+        """When hitting a surface, calculate the new direction
         and play the paddle hit sound (if not in game over state)"""
-        self.direction = (360 - self.direction) % 360
-        # self.fix_collisions()
+        if paddle:
+            if paddle.is_horizontal():
+                self.velocity_y = -self.velocity_y
+            else:
+                self.velocity_x = -self.velocity_x
+        else:
+            if self.rect.y <= 0 or self.rect.y >= self.config.screen_height:
+                self.velocity_y = -self.velocity_y
+            else:
+                self.velocity_x = -self.velocity_x
+        self.fix_collisions(paddle)
         if not self.game_over:
             self.paddle_hit.play()  # play the sound for bouncing off paddle
-        # print('paddle hit direction: ' + str(self.direction))
 
-    def fix_collisions(self):
-        """Move the ball on the x-axis to help avoid sprite overlap, or the ball going off screen on game over"""
-        if self.rect.x < self.config.screen_width / 2:  # Guess which side bounced the ball
-            if not self.game_over:
-                self.x = int(self.config.screen_width * 0.1) + self.width
+    def fix_collisions(self, paddle=None):
+        """Move the ball to help avoid sprite overlap, or the ball going completely off screen on game over"""
+        if paddle:
+            if paddle.is_horizontal() and paddle.top:
+                self.y += self.height
+            elif paddle.is_horizontal():
+                self.y -= self.height
+            elif self.rect.x < self.config.screen_width / 2:  # Guess which side bounced the ball
+                self.x += self.width
             else:
-                self.x += self.width * 2
-        else:                                   # Move ball to prevent getting stuck inside paddle
-            if not self.game_over:
-                self.x = int(self.config.screen_width * 0.9) - self.width
-            else:
-                self.x -= self.width * 2
+                self.x -= self.width
+        else:
+            if self.y < 0:
+                self.y += self.height
+            elif self.y > self.config.screen_height:
+                self.y -= self.height
+            elif self.x < self.config.screen_width / 2:
+                self.x += self.width
+            elif self.x > self.config.screen_width / 2:
+                self.x -= self.width
 
     def blitme(self):
         self.screen.blit(self.image, self.rect)
 
     def update(self):
-        direction_angle = math.radians(self.direction)
-        self.x += self.speed * math.sin(direction_angle)
-        self.y -= self.speed * math.cos(direction_angle)
+        self.x += self.velocity_x
+        self.y += self.velocity_y
         self.rect.x = self.x
         self.rect.y = self.y
