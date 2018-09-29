@@ -1,4 +1,5 @@
-from startup import Startup
+from paddle import Player, AiPaddleH, AiPaddleV
+from intro import Button, Intro
 import pygame
 import sys
 
@@ -32,6 +33,34 @@ def check_events(player_v, player_h1, player_h2):
             elif event.key == pygame.K_RIGHT:
                 player_h1.moving_right = False
                 player_h2.moving_right = False
+
+
+def setup_players(config, screen):
+    """Return a dictionary containing all relevant objects for the AI player and human player"""
+    ai_player_v = AiPaddleV(config, screen)
+    ai_player_h1 = AiPaddleH(config, screen, top=True)
+    ai_player_h2 = AiPaddleH(config, screen, top=False)
+    player_v = Player(config, screen, vertical=True)
+    player_h1 = Player(config, screen, vertical=False, top=True)
+    player_h2 = Player(config, screen, vertical=False, top=False)
+    paddles = pygame.sprite.Group()
+    paddles.add((ai_player_v, ai_player_h1, ai_player_h2,
+                 player_v, player_h1, player_h2))
+    ai_player = pygame.sprite.Group()
+    ai_player.add((ai_player_v, ai_player_h1, ai_player_h2))
+    player = pygame.sprite.Group()
+    player.add((player_v, player_h1, player_h2))
+    return {
+        'ai_player_v': ai_player_v,
+        'ai_player_h1': ai_player_h1,
+        'ai_player_h2': ai_player_h2,
+        'player_v': player_v,
+        'player_h1': player_h1,
+        'player_h2': player_h2,
+        'paddles': paddles,
+        'ai_player': ai_player,
+        'player': player
+    }
 
 
 def check_ball_collisions(paddles, ball, config, scoreboard_1, scoreboard_2, game_stats):
@@ -73,12 +102,15 @@ def check_scores(game_stats, config):
 
 
 def check_winner_display(game_stats, ball, scoreboard_1, scoreboard_2, paddles):
-    """Check the amount of time the winner has been displayed, reset if longer than 5 seconds"""
+    """Check the amount of time the winner has been displayed, reset if longer than 5 seconds, return True if reset"""
+    done = False
     if game_stats.winner_time is None:
         game_stats.winner_time = pygame.time.get_ticks()
     if abs(game_stats.winner_time - pygame.time.get_ticks()) > 5000:
-        winner, game_stats.winner_time = None, None
+        done = True
+        game_stats.winner_time = None
         reset_game(ball, scoreboard_1, scoreboard_2, paddles, game_stats)
+    return done
 
 
 def show_winner(scoreboard):
@@ -102,8 +134,9 @@ def reset_game(ball, scoreboard_1, scoreboard_2, players, game_stats):
 
 def startup_screen(config, game_stats, screen):
     """Display an introductory startup screen for the game"""
-    title_screen = Startup(config, game_stats, screen)
+    title_screen = Intro(config, game_stats, screen)
     title_screen.prep_image()
+    button = Button(config, screen, 'Play')
     intro = True
 
     while intro:
@@ -111,10 +144,12 @@ def startup_screen(config, game_stats, screen):
             if event.type == pygame.QUIT:
                 return True
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                intro = False
-                game_stats.game_active = True
+                click_x, click_y = pygame.mouse.get_pos()
+                game_stats.game_active = button.check_button(click_x, click_y)
+                intro = not game_stats.game_active
         screen.fill(config.bg_color)
         title_screen.show_menu()
+        button.draw_button()
         pygame.display.flip()
 
     return False
@@ -128,7 +163,6 @@ def update_screen(config, screen, scoreboard_1, scoreboard_2, paddles,
     screen.fill(config.bg_color)
     divider.draw_divider()
     if game_stats.game_active:
-
         scoreboard_1.show_score()
         scoreboard_2.show_score()
         for paddle in ai_player.sprites():

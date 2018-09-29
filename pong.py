@@ -3,7 +3,6 @@ import game_functions as game
 from ball import Ball
 from court_divider import Divider
 from game_stats import GameStats
-from paddle import Player, AiPaddleH, AiPaddleV
 from scoreboard import Scoreboard
 from config import Config
 
@@ -18,19 +17,7 @@ def run_game():
     )
     pygame.display.set_caption('Pong - No Walls')
     # setup players/AI
-    ai_player_v = AiPaddleV(config, screen)
-    ai_player_h1 = AiPaddleH(config, screen, top=True)
-    ai_player_h2 = AiPaddleH(config, screen, top=False)
-    player_v = Player(config, screen, vertical=True)
-    player_h1 = Player(config, screen, vertical=False, top=True)
-    player_h2 = Player(config, screen, vertical=False, top=False)
-    paddles = pygame.sprite.Group()
-    paddles.add((ai_player_v, ai_player_h1, ai_player_h2,
-                 player_v, player_h1, player_h2))
-    ai_player = pygame.sprite.Group()
-    ai_player.add((ai_player_v, ai_player_h1, ai_player_h2))
-    player = pygame.sprite.Group()
-    player.add((player_v, player_h1, player_h2))
+    player_data = game.setup_players(config, screen)
     # setup scoreboards
     gs = GameStats(config)
     scoreboard_1 = Scoreboard(config, screen, player=False)
@@ -50,10 +37,12 @@ def run_game():
                 break
         gs.game_active, winner = game.check_scores(gs, config)
         if not gs.game_active and winner:   # if game over, display winner for 5 seconds
-            game.check_winner_display(gs, ball, scoreboard_1, scoreboard_2, paddles)
-        game.check_events(player_v, player_h1, player_h2)
+            if game.check_winner_display(gs, ball, scoreboard_1, scoreboard_2, player_data['paddles']):
+                winner = None
+                continue
+        game.check_events(player_data['player_v'], player_data['player_h1'], player_data['player_h2'])
         game.update_screen(config, screen, scoreboard_1, scoreboard_2,
-                           paddles, ball, ai_player, divider, gs, winner or None)
+                           player_data['paddles'], ball, player_data['ai_player'], divider, gs, winner or None)
 
 
 if __name__ == '__main__':
