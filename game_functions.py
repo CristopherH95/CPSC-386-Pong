@@ -5,7 +5,7 @@ import sys
 
 
 def check_events(player_v, player_h1, player_h2):
-    """Handles key press events"""
+    """Handles key press events, and exit events"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
@@ -69,7 +69,8 @@ def check_ball_collisions(paddles, ball, config, scoreboard_1, scoreboard_2, gam
     if game_stats.game_active:
         paddle_collide = pygame.sprite.spritecollideany(ball, paddles)
         if paddle_collide:
-            ball.bounce(paddle_collide)
+            ball.bounce(paddle_collide)     # bounce off paddle ball on collide
+        # If the ball goes outside on the left side, player scores
         if ball.rect.x < 0 or \
                 ((ball.rect.y < 0 or ball.rect.y > config.screen_height)
                  and ball.rect.x < (config.screen_width // 2)):
@@ -77,6 +78,7 @@ def check_ball_collisions(paddles, ball, config, scoreboard_1, scoreboard_2, gam
             scoreboard_2.score_point()
             scoreboard_2.prep_board()
             ball.begin_serve()
+        # If the ball goes outside on the right side, AI scores
         elif ball.rect.x > config.screen_width or \
                 ((ball.rect.y < 0 or ball.rect.y > config.screen_height)
                  and ball.rect.x > (config.screen_width // 2)):
@@ -85,6 +87,7 @@ def check_ball_collisions(paddles, ball, config, scoreboard_1, scoreboard_2, gam
             scoreboard_1.prep_board()
             ball.begin_serve()
     else:
+        # If the game is over, bounce the ball freely off screen border
         if (ball.rect.x < 0 or ball.rect.x > config.screen_width) or \
                 (ball.rect.y < 0 or ball.rect.y > config.screen_height):
             ball.bounce()
@@ -133,7 +136,8 @@ def reset_game(ball, scoreboard_1, scoreboard_2, players, game_stats):
 
 
 def startup_screen(config, game_stats, screen):
-    """Display an introductory startup screen for the game"""
+    """Display an introductory startup screen for the game, return False if the user wishes to quit,
+    True if the user is ready to play"""
     title_screen = Intro(config, game_stats, screen)
     title_screen.prep_image()
     button = Button(config, screen, 'Play')
@@ -142,7 +146,7 @@ def startup_screen(config, game_stats, screen):
     while intro:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return True
+                return False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 click_x, click_y = pygame.mouse.get_pos()
                 game_stats.game_active = button.check_button(click_x, click_y)
@@ -152,7 +156,7 @@ def startup_screen(config, game_stats, screen):
         button.draw_button()
         pygame.display.flip()
 
-    return False
+    return True
 
 
 def update_screen(config, screen, scoreboard_1, scoreboard_2, paddles,

@@ -33,7 +33,7 @@ def run_game():
     while True:
         clock.tick(60)  # 60 fps limit
         if not gs.game_active and not winner:
-            quit_game = game.startup_screen(config, gs, screen)
+            quit_game = not game.startup_screen(config, gs, screen)
             if quit_game:
                 pygame.quit()
                 break

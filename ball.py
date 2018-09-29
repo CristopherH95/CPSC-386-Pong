@@ -46,11 +46,13 @@ class Ball(pygame.sprite.Sprite):
         self.x = self.config.screen_width / 2
         self.y = self.config.screen_height / 2
         self.speed = 8.0
+        # Choose a side to serve to
         if randrange(2) == 0:
-            self.velocity_x = -self.speed
+            # random initial velocities
+            self.velocity_x = -randrange(self.speed / 2, self.speed)
             self.velocity_y = randrange(-self.speed, self.speed)
         else:
-            self.velocity_x = self.speed
+            self.velocity_x = randrange(self.speed / 2, self.speed)
             self.velocity_y = randrange(-self.speed, self.speed)
 
     def bounce(self, paddle=None):
@@ -58,22 +60,25 @@ class Ball(pygame.sprite.Sprite):
         and play the paddle hit sound (if not in game over state)"""
         if paddle:
             if paddle.is_horizontal():
+                # Calculate new angle from distance from the middle of the paddle on the x-axis
                 middle_offset = (self.x + self.width - paddle.rect.x) / (paddle.rect.width + self.width)
                 phi = 0.25 * math.pi * (2 * middle_offset - 1)
                 self.velocity_x = self.speed * math.sin(phi)
                 self.velocity_y = -self.velocity_y
             else:
+                # Calculate new angle from distance from the middle of the paddle on the y-axis
                 middle_offset = (self.y + self.height - paddle.rect.y) / (paddle.rect.height + self.height)
                 phi = 0.25 * math.pi * (2 * middle_offset - 1)
                 self.velocity_y = self.speed * math.sin(phi)
                 self.velocity_x = -self.velocity_x
         else:
+            # If bouncing freely after the game ends, do simple reflect
             if self.rect.y <= 0 or self.rect.y >= self.config.screen_height:
                 self.velocity_y = -self.velocity_y
             else:
                 self.velocity_x = -self.velocity_x
-        self.fix_collisions(paddle)
-        if not self.game_over:
+        self.fix_collisions(paddle)   # prevent ball from getting stuck
+        if not self.game_over:  # Disable hit audio when the game is over
             if paddle.is_horizontal():
                 self.paddle_horizontal_hit.play()
             else:
@@ -109,7 +114,7 @@ class Ball(pygame.sprite.Sprite):
             self.y += self.velocity_y
             self.rect.x = self.x
             self.rect.y = self.y
-        else:
+        else:   # If waiting to serve, check that enough time has elapsed
             if abs(self.restart_check - pygame.time.get_ticks()) > self.restart_time:
                 self.restart_check = None
                 self.reset()

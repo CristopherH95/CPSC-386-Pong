@@ -1,5 +1,5 @@
 from pygame.sysfont import SysFont
-from pygame import Rect
+from pygame import Rect, draw
 
 
 class Button:
@@ -9,11 +9,12 @@ class Button:
         self.screen_rect = screen.get_rect()
 
         # Dimensions and properties of the button
-        self.width, self.height = 200, 50
         self.button_color = (0, 255, 0)
         self.text_color = (255, 255, 255)
         self.font = SysFont(None, 48)
         # Build button rect and center it
+        self.width, self.height = self.font.size(msg)
+        self.width, self.height = (self.width + self.width / 4), (self.height + self.height / 4)
         self.rect = Rect(0, 0, self.width, self.height)
         self.rect.centerx = (self.config.screen_width // 2)
         self.rect.centery = int(self.config.screen_height * 0.75)
@@ -30,13 +31,13 @@ class Button:
 
     def prep_msg(self, msg):
         """Turn msg into a rendered image and center it on the button"""
-        self.msg_image = self.font.render(msg, True, self.text_color, self.button_color)
+        self.msg_image = self.font.render(msg, True, self.text_color, self.config.bg_color)
         self.msg_image_rect = self.msg_image.get_rect()
         self.msg_image_rect.center = self.rect.center
 
     def draw_button(self):
         """Draw button and then draw message"""
-        self.screen.fill(self.button_color, self.rect)
+        draw.rect(self.screen, self.button_color, self.rect, 3)
         self.screen.blit(self.msg_image, self.msg_image_rect)
 
 
@@ -66,7 +67,7 @@ class Subtitle:
     def __init__(self, bg_color, screen):
         self.bg_color = bg_color
         self.screen = screen
-        self.text = 'No Walls'
+        self.text = 'AI -- No Walls'
         self.text_color = (0, 255, 0)
         self.font = SysFont(None, 36)
         self.image = None
