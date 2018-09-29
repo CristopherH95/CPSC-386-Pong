@@ -3,6 +3,7 @@ from pygame import Rect, draw
 
 
 class Button:
+    """Represents a click-able button"""
     def __init__(self, config, screen, msg):
         self.config = config
         self.screen = screen

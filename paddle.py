@@ -14,15 +14,18 @@ class Paddle(Sprite):
         self.rect = self.image.get_rect()
 
     def get_middle(self):
+        """Returns the middle point of a given paddle"""
         if self.is_horizontal():
             return self.rect.width / 2
         else:
             return self.rect.height / 2
 
     def is_horizontal(self):
+        """Returns True/False for whether the paddle is horizontal or not"""
         return self.rect.width > self.rect.height
 
     def reset_position(self):
+        """Resets the paddle's position"""
         raise NotImplemented('Paddle subclasses must implement reset_position method')
 
     def blitme(self):
@@ -42,6 +45,7 @@ class AiPaddleH(Paddle):
         self.reset_position()
 
     def reset_position(self):
+        """Resets the paddle's position"""
         self.rect.x = (self.config.screen_width // 2) // 2
         if self.top:
             self.rect.y = int(self.config.screen_height * 0.005)
@@ -49,6 +53,7 @@ class AiPaddleH(Paddle):
             self.rect.y = int(self.config.screen_height * 0.975)
 
     def track_ball(self, ball):
+        """Moves the paddle to follow the ball on the screen"""
         if self.rect.x > ball.rect.x and self.rect.left > 0:
             self.rect.x -= self.speed
         if self.rect.x < ball.rect.x and \
@@ -64,10 +69,12 @@ class AiPaddleV(Paddle):
         self.reset_position()
 
     def reset_position(self):
+        """Resets the paddle's position"""
         self.rect.x = int(self.config.screen_width * 0.005)
         self.rect.y = self.config.screen_height // 2
 
     def track_ball(self, ball):
+        """Moves the paddle to follow the ball on the screen"""
         if self.rect.centery > ball.rect.y and self.rect.top > 0:
             self.rect.centery -= self.speed
         if self.rect.centery < ball.rect.y and self.rect.bottom < self.config.screen_height:
