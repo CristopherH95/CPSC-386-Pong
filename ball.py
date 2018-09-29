@@ -1,5 +1,6 @@
-import pygame
 from random import randrange
+import pygame
+import math
 
 
 class Ball(pygame.sprite.Sprite):
@@ -45,14 +46,21 @@ class Ball(pygame.sprite.Sprite):
         and play the paddle hit sound (if not in game over state)"""
         if paddle:
             if paddle.is_horizontal():
+                middle_offset = (self.x + self.width - paddle.rect.x) / (paddle.rect.width + self.width)
+                phi = 0.25 * math.pi * (2 * middle_offset - 1)
+                self.velocity_x = self.speed * math.sin(phi)
                 self.velocity_y = -self.velocity_y
             else:
+                middle_offset = (self.y + self.height - paddle.rect.y) / (paddle.rect.height + self.height)
+                phi = 0.25 * math.pi * (2 * middle_offset - 1)
+                self.velocity_y = self.speed * math.sin(phi)
                 self.velocity_x = -self.velocity_x
         else:
             if self.rect.y <= 0 or self.rect.y >= self.config.screen_height:
                 self.velocity_y = -self.velocity_y
             else:
                 self.velocity_x = -self.velocity_x
+        print(self.velocity_y)
         self.fix_collisions(paddle)
         if not self.game_over:
             self.paddle_hit.play()  # play the sound for bouncing off paddle
