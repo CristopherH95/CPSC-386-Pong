@@ -34,7 +34,7 @@ class Ball(pygame.sprite.Sprite):
     def begin_serve(self):
         """Set restart check to current time measurement to begin waiting for restart"""
         self.restart_check = pygame.time.get_ticks()
-        self.x = self.config.screen_width / 2
+        self.x = (self.config.screen_width / 2) - (self.width / 2)
         self.y = self.config.screen_height / 2
         self.rect.x = self.x
         self.rect.y = self.y

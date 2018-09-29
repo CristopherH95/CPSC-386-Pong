@@ -98,10 +98,10 @@ class Intro:
         """Render the title as an image"""
         self.title.prep_image()
         self.title.image_rect.centerx = (self.config.screen_width // 2)
-        self.title.image_rect.centery = self.config.screen_height // 2
+        self.title.image_rect.centery = (self.config.screen_height // 2) - self.title.image_rect.height
         self.subtitle.prep_image()
         self.subtitle.image_rect.centerx = (self.config.screen_width // 2)
-        self.subtitle.image_rect.centery = (self.config.screen_height // 2) + (self.title.image_rect.height * 2)
+        self.subtitle.image_rect.centery = (self.config.screen_height // 2) + self.title.image_rect.height
 
     def show_menu(self):
         """Draw the title to the screen"""
